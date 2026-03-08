@@ -1,0 +1,277 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-insureflow-dev"
+		},
+		"ls_adls_insureflow_servicePrincipalCredential": {
+			"type": "secureString",
+			"metadata": "Secure string for 'servicePrincipalCredential' of 'ls_adls_insureflow'"
+		},
+		"ls_databricks_insureflow_accessToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessToken' of 'ls_databricks_insureflow'"
+		},
+		"ls_adls_insureflow_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://adlsinsureflowdev.dfs.core.windows.net/"
+		},
+		"ls_adls_insureflow_properties_typeProperties_tenant": {
+			"type": "string",
+			"defaultValue": "4fd172ec-9884-42f7-9132-b8583a21e9eb"
+		},
+		"ls_adls_insureflow_properties_typeProperties_servicePrincipalId": {
+			"type": "string",
+			"defaultValue": "cd011591-436f-40ad-918b-813b6c31c780"
+		},
+		"ls_databricks_insureflow_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "0307-181423-fuerrdku"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_master_insureflow')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "nb_silver_customers",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/saipavan054@gmail.com/InsureFlow/silver/nb_bronze_to_silver_customers"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_databricks_insureflow",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "nb_silver_policies",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "nb_silver_customers",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/saipavan054@gmail.com/InsureFlow/silver/nb_bronze_to_silver_policies"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_databricks_insureflow",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "nb_silver_claims",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "nb_silver_policies",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/saipavan054@gmail.com/InsureFlow/silver/nb_bronze_to_silver_claims"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_databricks_insureflow",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "nb_silver_payments",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "nb_silver_claims",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/saipavan054@gmail.com/InsureFlow/silver/nb_bronze_to_silver_payments"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_databricks_insureflow",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "nb_gold_summary",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "nb_silver_payments",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/saipavan054@gmail.com/InsureFlow/gold/nb_silver_to_gold_claims_summary"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_databricks_insureflow",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "nb_audit_log",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "nb_gold_to_sql",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/saipavan054@gmail.com/InsureFlow/utils/nb_audit_logging"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_databricks_insureflow",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "nb_gold_to_sql",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "nb_gold_summary",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/saipavan054@gmail.com/InsureFlow/gold/nb_gold_to_sql"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_databricks_insureflow",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-03-08T07:42:16Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_databricks_insureflow')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_adls_insureflow')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ls_adls_insureflow_properties_typeProperties_url')]",
+					"tenant": "[parameters('ls_adls_insureflow_properties_typeProperties_tenant')]",
+					"servicePrincipalId": "[parameters('ls_adls_insureflow_properties_typeProperties_servicePrincipalId')]",
+					"servicePrincipalCredentialType": "ServicePrincipalKey",
+					"servicePrincipalCredential": {
+						"type": "SecureString",
+						"value": "[parameters('ls_adls_insureflow_servicePrincipalCredential')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_databricks_insureflow')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-7405605132641710.10.azuredatabricks.net",
+					"accessToken": {
+						"type": "SecureString",
+						"value": "[parameters('ls_databricks_insureflow_accessToken')]"
+					},
+					"existingClusterId": "[parameters('ls_databricks_insureflow_properties_typeProperties_existingClusterId')]"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adf-insureflow-dev"
+		},
+		"ls_adls_insureflow_servicePrincipalCredential": {
+			"value": ""
+		},
+		"ls_databricks_insureflow_accessToken": {
+			"value": ""
+		},
+		"ls_adls_insureflow_properties_typeProperties_url": {
+			"value": "https://adlsinsureflowdev.dfs.core.windows.net/"
+		},
+		"ls_adls_insureflow_properties_typeProperties_tenant": {
+			"value": "4fd172ec-9884-42f7-9132-b8583a21e9eb"
+		},
+		"ls_adls_insureflow_properties_typeProperties_servicePrincipalId": {
+			"value": "cd011591-436f-40ad-918b-813b6c31c780"
+		},
+		"ls_databricks_insureflow_properties_typeProperties_existingClusterId": {
+			"value": "0307-181423-fuerrdku"
+		}
+	}
+}

@@ -1,0 +1,9 @@
+{
+	"name": "adf-insureflow-dev",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "223eaec5-4e08-4407-b1df-50d6325e596d",
+		"tenantId": "4fd172ec-9884-42f7-9132-b8583a21e9eb"
+	}
+}

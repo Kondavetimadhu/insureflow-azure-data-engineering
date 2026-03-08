@@ -1,0 +1,192 @@
+{
+	"name": "pl_master_insureflow",
+	"properties": {
+		"activities": [
+			{
+				"name": "nb_silver_customers",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/saipavan054@gmail.com/InsureFlow/silver/nb_bronze_to_silver_customers"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_databricks_insureflow",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "nb_silver_policies",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "nb_silver_customers",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/saipavan054@gmail.com/InsureFlow/silver/nb_bronze_to_silver_policies"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_databricks_insureflow",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "nb_silver_claims",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "nb_silver_policies",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/saipavan054@gmail.com/InsureFlow/silver/nb_bronze_to_silver_claims"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_databricks_insureflow",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "nb_silver_payments",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "nb_silver_claims",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/saipavan054@gmail.com/InsureFlow/silver/nb_bronze_to_silver_payments"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_databricks_insureflow",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "nb_gold_summary",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "nb_silver_payments",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/saipavan054@gmail.com/InsureFlow/gold/nb_silver_to_gold_claims_summary"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_databricks_insureflow",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "nb_audit_log",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "nb_gold_to_sql",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/saipavan054@gmail.com/InsureFlow/utils/nb_audit_logging"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_databricks_insureflow",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "nb_gold_to_sql",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "nb_gold_summary",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/saipavan054@gmail.com/InsureFlow/gold/nb_gold_to_sql"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_databricks_insureflow",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2026-03-08T07:42:16Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
